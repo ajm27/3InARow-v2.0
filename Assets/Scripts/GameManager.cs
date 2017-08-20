@@ -14,7 +14,7 @@ public enum PROCESS_STATES
 
 public class GameManager : MonoBehaviour
 {    
-    PROCESS_STATES current_process;
+    public PROCESS_STATES current_process;
 
 	// Use this for initialization
 	void Start ()

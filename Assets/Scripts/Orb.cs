@@ -13,7 +13,7 @@ public class Orb : MonoBehaviour
     int index;
     Vector4 orbCheck = new Vector4(-1, -1, -1, -1);
     Vector2 position;
-    public bool isMoving;
+    bool isMoving;
 
     public Rigidbody2D rb = null;
 
@@ -27,7 +27,10 @@ public class Orb : MonoBehaviour
 	void Update ()
     {
         if (isMoving && rb == null)
+        {
             gameObject.AddComponent<Rigidbody2D>();
+            rb = gameObject.GetComponent<Rigidbody2D>();
+        }
 	}
 
     private void OnMouseDown()
@@ -40,15 +43,17 @@ public class Orb : MonoBehaviour
         isMoving = false;
         gameObject.GetComponent<CircleCollider2D>().radius = 0.255f;
         Destroy(gameObject.GetComponent<Rigidbody2D>());
+        rb = null;
         setPositionByIndex();
         game_board.setSelectedOrb(null);
+
+        game_board.getGameManager().setProcess(PROCESS_STATES.MATCH);
     }
 
     private void OnTriggerEnter2D(Collider2D coll)
     {
         if (coll.gameObject.tag == "Orb" && isMoving)
         {
-            Debug.Log(coll.name);
             game_board.setSwitchOrb(coll.gameObject);
         }
     }

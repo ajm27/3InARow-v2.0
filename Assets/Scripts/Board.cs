@@ -16,12 +16,13 @@ public class Board : MonoBehaviour
     int orb_count = 0;
 
     Vector2 mousePosition;
-    public GameObject selectedOrb;
-    public GameObject switchOrb;
-    public Orb selectedOrb_s;
-    public Orb switchOrb_s;
+    GameObject selectedOrb;
+    GameObject switchOrb;
+    Orb selectedOrb_s;
+    Orb switchOrb_s;
 
-    List<int> matchingOrbIndexes;
+    public List<int> matchingOrbIndexes_h;
+    public List<int> matchingOrbIndexes_v;
     List<GameObject> orbsToRemove;
     
 
@@ -34,8 +35,9 @@ public class Board : MonoBehaviour
         orb_blue = (GameObject)Resources.Load("Prefabs/Orbs/Orb_Blue");
         orb_green = (GameObject)Resources.Load("Prefabs/Orbs/Orb_Green");
         orb_yellow = (GameObject)Resources.Load("Prefabs/Orbs/Orb_Yellow");
-        matchingOrbIndexes = new List<int> ();
-	}
+        matchingOrbIndexes_h = new List<int> ();
+        matchingOrbIndexes_v = new List<int>();
+    }
 	
 	// Update is called once per frame
 	void Update ()
@@ -53,12 +55,17 @@ public class Board : MonoBehaviour
         }
         if (switchOrb != null)
         {
-            switchOrbs(selectedOrb_s, switchOrb_s);
+            switchOrbs(selectedOrb, switchOrb);
         }
+
+        if (gm.getProcess() == PROCESS_STATES.MATCH)
+            generatePairs();
+
+        //if(gm.getProcess() == PROCESS_STATES.DELETE)
+
     }
 
     //private
-
     GameObject generateOrb(int index)
     {
         int rand = Random.Range(1, 5);
@@ -98,20 +105,94 @@ public class Board : MonoBehaviour
         gm.setProcess(PROCESS_STATES.WAIT);
     }
 
-    void switchOrbs(Orb orb1, Orb orb2) //orb1 - moving orb | orb2 - stationary orb
+    void switchOrbs(GameObject orb1, GameObject orb2) //orb1 - moving orb | orb2 - stationary orb
     {
-        int temp_index = orb2.getIndex();
+        Orb orb1_s = orb1.GetComponent<Orb>(),
+            orb2_s = orb2.GetComponent<Orb>();
 
-        orb2.setIndex(orb1.getIndex());
-        orb2.setPositionByIndex();
+        int temp_index = orb2_s.getIndex();
 
-        orb1.setIndex(temp_index);
+        orb2_s.setIndex(orb1_s.getIndex());
+        orb2_s.setPositionByIndex();
+
+        orb1_s.setIndex(temp_index);
+
+        orbs[orb1_s.getIndex()] = orb1;
+        orbs[orb2_s.getIndex()] = orb2;
 
         switchOrb = null;
         switchOrb_s = null;
     }
 
+    bool matchOrbs(Orb orb1, Orb orb2)
+    {
+        if (orb1.getColor().Equals(orb2.getColor()))
+            return true;
+
+        return false;
+    }
+
+    bool checkIfTop(int index)
+    {
+        if (index > 23)
+            return true;
+
+        return false;
+    }
+
+    bool checkIfRight(int index)
+    {
+        if (index == 5 || index == 11 || index == 17 || index == 23 || index == 29)
+            return true;
+
+        return false;
+    }
+
+    void findStrings()
+    {
+
+    }
+
+    void generatePairs()
+    {
+        foreach(GameObject orb in orbs)
+        {
+            Orb orb1 = orb.GetComponent<Orb>();
+            Orb orb2;
+
+            //check horizontal matches
+            if(!checkIfRight(orb1.getIndex()))
+            {
+                orb2 = orbs[orb.GetComponent<Orb>().getIndex() + 1].GetComponent<Orb>();
+                if(matchOrbs(orb1, orb2))
+                {
+                    matchingOrbIndexes_h.Add(orb1.getIndex());
+                    matchingOrbIndexes_h.Add(orb2.getIndex());
+                }
+            }
+            //check vertical matches
+            if (!checkIfTop(orb1.getIndex()))
+            {
+                orb2 = orbs[orb.GetComponent<Orb>().getIndex() + 6].GetComponent<Orb>();
+                if (matchOrbs(orb1, orb2))
+                {
+                    matchingOrbIndexes_v.Add(orb1.getIndex());
+                    matchingOrbIndexes_v.Add(orb2.getIndex());
+                }
+            }
+        }
+
+
+
+        gm.setProcess(PROCESS_STATES.DELETE);
+    }
+
     //public 
+    public GameManager getGameManager()
+    {
+        return gm;
+    }
+
     public GameObject getSelectedOrb()
     {
         return selectedOrb;
