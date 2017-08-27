@@ -68,7 +68,7 @@ public class Board : MonoBehaviour
             foreach (GameObject orb in orbsToRemove)
             {
                 orb.tag = "null";
-                Debug.Log(orb + " " + orb.tag);
+                orbs[orb.GetComponent<Orb>().getIndex()] = null;
                 Destroy(orb);
             }
 
@@ -113,6 +113,7 @@ public class Board : MonoBehaviour
 
     void generateBoard()
     {
+        Debug.Log("Board is generating");
         //int i = 0;
         //for (int y = 0; y < BOARD_SIZE_Y; y++)
         //{
@@ -316,23 +317,57 @@ public class Board : MonoBehaviour
         gm.setProcess(PROCESS_STATES.DELETE);
     }
 
-    void shiftBoard()
+    bool checkShift()
     {
-        foreach (GameObject orb in orbs)
+        foreach(GameObject orb in orbs)
         {
-            Orb tmp = orb.GetComponent<Orb>();
+            Debug.Log("Shift Checking");
+            Orb tmp;
 
-            if (checkIfBottom(tmp.getIndex()))
-                continue;
-
-            GameObject asd = orbs[tmp.getIndex() - 6];
-            if (orbs[tmp.getIndex() - 6].tag.Equals("null"))
+            if (orb != null)
             {
-                Debug.Log("Called 002");
-                tmp.setIndex(tmp.getIndex() - 6);
-                tmp.setPositionByIndex();
+                tmp = orb.GetComponent<Orb>();
+                
+                if (checkIfBottom(tmp.getIndex()))
+                    continue;
+
+                if (orbs[tmp.getIndex() - 6] == null)
+                    return true;
             }
         }
+
+        return false;
+    }
+
+    void shiftBoard()
+    {
+        bool shifting = true;
+        while (shifting)
+        {
+            shifting = false;
+            foreach (GameObject orb in orbs)
+            {
+                Orb tmp;
+
+                if (orb != null)
+                {
+                    tmp = orb.GetComponent<Orb>();
+
+                    if (checkIfBottom(tmp.getIndex()))
+                        continue;
+
+                    if (orbs[tmp.getIndex() - 6] == null)
+                    {
+                        tmp.setIndex(tmp.getIndex() - 6);
+                        tmp.setPositionByIndex();
+                    }
+                }
+            }
+        }
+
+        if (checkShift())
+            shiftBoard();
+
         gm.setProcess(PROCESS_STATES.REGENERATE);
     }
 
