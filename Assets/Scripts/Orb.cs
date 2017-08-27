@@ -8,10 +8,9 @@ public class Orb : MonoBehaviour
     public const int   BOARD_WRAP = 6;
     
     Board game_board;
-
+    
     string color;
-    int index;
-    Vector4 orbCheck = new Vector4(-1, -1, -1, -1);
+    public int index;
     Vector2 position;
     bool isMoving;
 
@@ -93,9 +92,14 @@ public class Orb : MonoBehaviour
         isMoving = _moving;
     }
 
+    public void setRefPosition(Vector2 _position)
+    {
+        position = _position;
+    }
+
     public void setPosition(Vector2 _position)
     {
-        transform.position = position = _position;
+        transform.position = _position;
     }
 
     int getY(int index)
@@ -127,19 +131,11 @@ public class Orb : MonoBehaviour
         setPosition(new Vector2(x * OFFSET, y * OFFSET));
     }
 
-    public void setOrb(int _index, string _color)
+    public void setOrb(int _index, string _color, Vector2 _position)
     {
         index = _index;
         color = _color;
-
-        if (index != 0 && index != 1 && index != 2 && index != 3 && index != 4 && index != 5) //bottom check
-            orbCheck.x = index - 6;
-        if (index != 0 && index != 6 && index != 12 && index != 18 && index != 24) //left check
-            orbCheck.y = index - 1;
-        if (index != 24 && index != 25 && index != 26 && index != 27 && index != 28 && index != 29) //top check
-            orbCheck.z = index + 6;
-        if (index != 5 && index != 11 && index != 17 && index != 23 && index != 29) //right check
-            orbCheck.w = index + 1;
+        position = _position;
 
         setPositionByIndex();
     }
