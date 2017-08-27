@@ -358,15 +358,15 @@ public class Board : MonoBehaviour
 
                     if (orbs[tmp.getIndex() - 6] == null)
                     {
+			orbs[tmp.getIndex() - 6] = orbs[tmp.getIndex()];
+			orbs[tmp.getIndex()] = null;
                         tmp.setIndex(tmp.getIndex() - 6);
                         tmp.setPositionByIndex();
+			shifting = true;
                     }
                 }
             }
         }
-
-        if (checkShift())
-            shiftBoard();
 
         gm.setProcess(PROCESS_STATES.REGENERATE);
     }
